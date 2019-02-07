@@ -1,0 +1,287 @@
+---
+title: "Assignment1"
+author: "xl2836, Xinyi Lin"
+date: "2/3/2019"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+## Problem 1
+
+## Question 1
+
+$$\begin{split}
+f(y, \lambda) & = \lambda e^{-\lambda y} \\
+& = \exp(-\lambda y + \log\lambda) \\
+& = \exp[-(\lambda y - \log\lambda)]
+\end{split}$$
+
+Let $\theta = \lambda$, then
+$$
+f(y, \theta, \phi) = \exp[-(\theta y - \log\theta)]
+$$
+So scale parameter $\phi = -1$, $b(\theta)=log\theta$.
+
+$E(Y) = b'(\theta) = \frac{1}{\theta}$, $Var(Y) = \phi b''(\theta) = - (\frac{1}{\theta})' = - \frac{1}{\theta^2}$.
+
+As $b'(\theta) = \frac{1}{\theta}$, $g = b'^{-1}(\mu) = \frac{1}{\mu}$.
+
+### Question 2
+
+$$\begin{split}
+f(y, \pi) & = {n\choose y} \pi^y (1-\pi)^{(n-y)} \\
+& = exp[\log{n\choose y} + y\log\pi + (n-y)\log(1-\pi)] \\
+& = exp[y\log(\frac{\pi}{1-\pi}) + n\log(1-\pi) + \log{n\choose y}]
+\end{split}$$
+
+Let $\theta = \log(\frac{\pi}{1-\pi})$, then $e^\theta = \frac{\pi}{1-\pi}$, $\pi = \frac{e^\theta}{e^\theta+1}$, 
+$$\begin{split}
+f(y, \theta, \phi) & = exp[y\theta + n\log(1-\frac{e^\theta}{e^\theta+1}) + \log{n\choose y}] \\
+& = exp[y\theta -(-n\log\frac{1}{e^\theta+1}) + \log{n\choose y}]
+\end{split}$$
+So scale parameter $\phi = 1$, $b(\theta)=-n\log\frac{1}{e^\theta+1}$.
+
+$E(Y) = b'(\theta) = n(e^\theta + 1)[-\frac{e^\theta}{(e^\theta+1)^2}] = \frac{ne^\theta}{e^\theta+1}$, $Var(Y) = \phi b''(\theta) = n(1-\frac{1}{e^\theta +1})' =\frac{ne^\theta}{(e^\theta +1)^2}$.
+
+As $b'(\theta) = \frac{ne^\theta}{e^\theta+1}$, $g = b'^{-1}(\mu) = \log\frac{\mu}{n-\mu}$
+
+## Question 3
+
+$$\begin{split}
+f(y, \lambda) & = \frac{1}{y!}\lambda^ye^{-\lambda} \\
+& = \exp[-\lambda + y\log\lambda + \log(\frac{1}{y!})]
+\end{split}$$
+
+Let $\theta = \log\lambda$, then $\lambda = e^\theta$,
+$$
+f(y, \theta, \phi) = \exp[\theta y - e^\theta + \log(\frac{1}{y!})]
+$$
+So scale parameter $\phi = 1$, $b(\theta)=e^\theta$.
+
+$E(Y) = b'(\theta) = e^\theta$, $Var(Y) = \phi b''(\theta) = e^\theta$.
+
+As $b'(\theta) = e^\theta$, $g = b'^{-1}(\mu) = \log\mu$.
+
+## Question 4
+
+$$\begin{split}
+f(y, k) & = \frac{1}{\Gamma(\frac{k}{2})2^{\frac{k}{2}}}y^{\frac{k}{2}-1}e^{-\frac{y}{2}} \\
+& = \exp\{-\frac{y}{2} + (\frac{k}{2}-1)\log y - \log[\Gamma(\frac{k}{2})2^{\frac{k}{2}}]\} \\
+& = \exp [\frac{k}{2}\log y - \log\Gamma(\frac{k}{2}) - \frac{k}{2}\log2 - \log y - \frac{y}{2}]
+\end{split}$$
+
+Let $\theta = \frac{k}{2}$, then 
+$$
+f(y, \theta, \phi) = \exp\{\theta\log y - [\log\Gamma(\theta) + \theta\log2] - \log y - \frac{y}{2}\}
+$$
+So scale parameter $\phi = 1$, $b(\theta)=\log\Gamma(\theta) + \theta\log2$.
+
+$$\begin{split}
+E(Y) & = \int yf(y)dy = \int_0^\infty y\frac{1}{\Gamma(\frac{k}{2})2^{\frac{k}{2}}}y^{\frac{k}{2}-1}e^{-\frac{y}{2}}dy \\
+& = \frac{\Gamma(\frac{k}{2}+1)2^{\frac{k}{2}+1}}{\Gamma(\frac{k}{2})2^{\frac{k}{2}}}\int_0^\infty \frac{1}{\Gamma(\frac{k}{2}+1)2^{\frac{k}{2}+1}}y^{\frac{k}{2}+1-1}e^{-\frac{y}{2}}dy \\
+& = \frac{k}{2}\times2 = k
+\end{split}$$
+
+$$\begin{split}
+E(Y^2) & = \int y^2f(y)dy = \int_0^\infty y\frac{1}{\Gamma(\frac{k}{2})2^{\frac{k}{2}}}y^{\frac{k}{2}-1}e^{-\frac{y}{2}}dy \\
+& = \frac{\Gamma(\frac{k}{2}+2)2^{\frac{k}{2}+2}}{\Gamma(\frac{k}{2})2^{\frac{k}{2}}}\int_0^\infty \frac{1}{\Gamma(\frac{k}{2}+2)2^{\frac{k}{2}+2}}y^{\frac{k}{2}+2-1}e^{-\frac{y}{2}}dy \\
+& = k^2+2k
+\end{split}$$
+
+$$ Var(Y) = E(Y^2) - (EY)^2 = 2k $$
+
+So $b'(\theta) = E(Y) = k = 2\theta$, $g = b'^{-1}(\mu) = \frac{\mu}{2}$.
+
+## Question 5
+
+$$\begin{split}
+f(y, \beta) & = {{y+m-1}\choose{m-1}}\beta^m(1-\beta)^y\\
+& = \exp[y\log(1-\beta) + m\log\beta + log{{y+m-1}\choose{m-1}}]
+\end{split}$$
+
+Let $\theta = \log(1-\beta)$, then $\beta = 1-e^\theta$,
+$$
+f(y, \theta, \phi) = \exp[\theta y -(-m\log(1- e^\theta)) + log{{y+m-1}\choose{m-1}}]
+$$
+So scale parameter $\phi = 1$, $b(\theta)= -m\log(1- e^\theta)$.
+
+$E(Y) = b'(\theta) = m\frac{1}{1-e^\theta}(-e^\theta) = \frac{m e^\theta}{1-e^\theta}$, $Var(Y) = \phi b''(\theta) = m(1+\frac{1}{e^\theta-1}) = \frac{me^\theta}{(e^\theta-1)^2}$.
+
+As $b'(\theta) = \frac{m e^\theta}{1-e^\theta}$, $g = b'^{-1}(\mu) = \log\frac{\mu}{\mu+m}$.
+
+## Question 6
+
+$$\begin{split}
+f(y, \lambda) & = \frac{\beta^\alpha}{\Gamma(\alpha)}y^{\alpha-1}e^{-\beta y} \\
+& = \exp[-\beta y + (\alpha-1)\log y + \alpha\log\beta - \log\Gamma(\alpha)] \\
+& = \exp[-(y\beta - \alpha\log\beta) + (\alpha -1)\log y - \log\Gamma(\alpha)]
+\end{split}$$
+
+Let $\theta = \beta$, then 
+$$
+f(y, \theta, \phi) = \exp[-(y\theta - \alpha\log\theta) + (\alpha -1)\log y - \log\Gamma(\alpha)]
+$$
+So scale parameter $\phi = -1$, $b(\theta)=\alpha\log\theta$.
+
+$E(Y) = b'(\theta) = \frac{\alpha}{\theta}$, $Var(Y) = \phi b''(\theta) = \frac{\alpha}{\theta^2}$.
+
+As $b'(\theta) = \frac{\alpha}{\theta}$, $g = b'^{-1}(\mu) = \frac{\alpha}{\mu}$.
+
+## Problem 2
+
+$$\begin{split}
+l(y|\beta) & = \sum_{i=1}^n\log[{m \choose y_i}\pi_i^{y_i}(1-\pi_i)^{m-y_i}]  \\
+& = \sum_{i=1}^n[\log{m \choose y_i} + y_i\log\pi_i + (m-y_i)\log(1-\pi_i)] \\
+& = \sum_{i=1}^n[y_i\log(\frac{\pi_i}{1-\pi_i}) + m\log(1-\pi_i) + \log{m \choose y_i}]
+\end{split}$$
+
+Since $Y_i\sim Bin(m, \pi_i)$, $\mu = m\pi_i$. Deviance :
+
+$$
+l(y, \mu)  = \sum_{i=1}^n[y_i\log(\frac{\mu_i}{m-\mu_i}) + m\log(\frac{m-\mu_i}{m}) + \log{m \choose y_i}]  \\
+l(y, y) = \sum_{i=1}^n[y_i\log(\frac{y_i}{m-y_i}) + m\log(\frac{m-y_i}{m}) + \log{m \choose y_i}] $$
+
+$$\begin{split}
+D(y, \hat{\mu}) & = 2[l(y, y)- l(y, \mu)] \\
+& = 2\sum_{i=1}^n[y_i\log(\frac{y_i}{m-y_i}\frac{m-\mu_i}{\mu_i}) + m\log(\frac{m-y_i}{m-\mu_i})] \\
+& = 2\sum_{i=1}^n\{y_i\log(\frac{y_i}{e^{x_i\hat{\beta}}(m-y_i)}) + m\log[\frac{(e^{x_i\hat{\beta}}+1)(m-y_i)}{m}]\}
+\end{split}$$
+
+Pearson Residual :
+$$rp_i = \frac{y_i-\hat{\mu}_i}{\sqrt{V(\hat{\mu_i})}} = (y_i - \frac{me^{x_i\hat{\beta}}}{e^{x_i\hat{\beta}}+1})/{\sqrt{\frac{me^{x_i\hat{\beta}}}{(e^{x_i\hat{\beta}}+1)^2}}} $$
+
+Deviance residual :
+$$\begin{split}
+rD_i & = sign(y_i-\hat{\mu_i})\sqrt{d_i} \\
+& = sign(y_i-\frac{me^{x_i\hat{\beta}}}{e^{x_i\hat{\beta}}+1})\sqrt{2\{y_i\log(\frac{y_i}{e^{x_i\hat{\beta}}(m-y_i)}) + m\log[\frac{(e^{x_i\hat{\beta}}+1)(m-y_i)}{m}]\}}
+\end{split}$$
+
+Pearson's $\chi^2$ statistic :
+
+$$
+G = \sum_{i=1}^{n}\frac{(y_i-\hat{\mu_i})^2}{V(\hat{\mu_i})} = \sum_{i=1}^{n}\frac{(y_i-\frac{me^{x_i\hat{\beta}}}{e^{x_i\hat{\beta}}+1})^2(e^{x_i\hat{\beta}}+1)^2}{{me^{x_i\hat{\beta}}}}
+$$
+
+## Problem 3
+
+### Question 1
+
+$$\begin{split}
+l(y, \pi) & = \sum_{i=1}^n[y_i\log\pi + (1-y_i)\log(1-\pi)] \\
+& = \sum_{i=1}^n[y_i\log(\frac{\pi}{1-\pi}) + \log(1-\pi)]
+\end{split}$$
+
+$$\begin{split}
+s(\pi) = \frac{\partial{l(y, \pi)}}{\partial\pi} & = \sum_{i=1}^n[yi\frac{1-\pi}{\pi}\frac{1}{(1-\pi)^2} + \frac{1}{1-\pi}(-1)] \\
+& = \sum_{i=1}^n[y_i\frac{1}{\pi(1-\pi)} - \frac{1}{1-\pi}] \\
+& = n\bar{y}\frac{1}{\pi(1-\pi)}-\frac{n}{1-\pi}
+\end{split}$$
+
+$$\begin{split}
+I(\pi) = E(-\frac{\partial^2l(y,\pi)}{\partial\pi^2}) & = E(-\sum_{i=1}^n[yi\frac{2\pi-1}{\pi^2(1-\pi)^2}-\frac{1}{(1-\pi)^2}]) \\
+& = \frac{2\pi-1}{\pi^2(1-\pi)^2}E(-\sum_{i=1}^nyi) + \frac{n}{(1-\pi)^2}] \\
+& = -\frac{(2\pi-1)n}{\pi(1-\pi)^2} + \frac{n}{(1-\pi)^2}] \\
+& = -\frac{n(2\pi-1)-n\pi}{\pi(1-\pi)^2} \\
+& = -\frac{n\pi-n}{\pi(\pi-1)^2} \\
+& = \frac{n}{\pi(1-\pi)}
+\end{split}$$
+
+$$\hat{\pi}_{MLE} = \bar y$$
+
+Wald : $TS_W = (\hat{\pi}_{MLE}-\pi_0)\ast I(\hat{\pi}_{MLE})\ast(\hat{\pi}_{MLE}-\pi_0) = (\bar y-\pi_0)^2\frac{n}{y_0(1-y_0)}$
+
+Score : $TS_s = s(\pi_0)\ast I^{-1}(\pi_0)\ast s(\pi_0) = [\frac{n\bar y}{\pi_0(1-\pi_0)}-\frac{n}{1-\pi_0}]^2\frac{\pi_0(1-\pi_0)}{n} = \frac{n(\bar y-\pi_0)^2}{\pi_0(1-\pi_0)}$
+
+LR : $TS_{LR} = 2[l(y, \hat{\pi}_{MLE})-l(y, \pi_0)] =2\sum_{i=1}^n[y_ilog(\frac{\bar y}{1-\bar y}\frac{1-\pi_0}{\pi_0}) + log(\frac{1-\bar y}{1-\pi_0})] = 2n[\bar y\log(\frac{\bar y(1-\pi_0)}{(1-\bar y)\pi_0}) + log(\frac{1-\bar y}{1-\pi_0})]$
+
+### Question 2
+
+```{r, eval=FALSE, echo=FALSE}
+wald_test = function(pi){
+  a = (0.3-pi)*(0.3-pi)*10
+  b = 0.3*0.7
+  return(a/b)
+}
+
+score_test = function(pi){
+  a = (0.3-pi)*(0.3-pi)*10
+  b = pi*(1-pi)
+  return(a/b)
+}
+
+c_test = function(pi){
+  a = 0.3*log(0.3*(1-pi)/(0.7*pi))
+  b = log(0.7/(1-pi))
+  c = 20*(a+b)
+  return(c)
+}
+```
+
+```{r eval=FALSE, echo=FALSE}
+wald_test(0.1)
+wald_test(0.3)
+wald_test(0.5)
+
+p_wald1 = pchisq(wald_test(0.1), 1)
+p_score1 = pchisq(score_test(0.1), 1)
+p_lr1 = pchisq(lr_test(0.1), 1)
+p_wald2 = pchisq(wald_test(0.3), 1)
+p_score2 = pchisq(score_test(0.3), 1)
+p_lr2 = pchisq(lr_test(0.3), 1)
+p_wald3 = pchisq(wald_test(0.5), 1)
+p_score3 = pchisq(score_test(0.5), 1)
+p_lr3 = pchisq(lr_test(0.5), 1)
+
+p_wald1
+p_score1
+p_lr1
+p_wald2
+p_score2
+p_lr2
+p_wald3
+p_score3
+p_lr3
+```
+
+When $\pi_0 = 0.1$, 
+
+Wald : $TS_W = (\bar y-\pi_0)^2\frac{n}{y_0(1-y_0)} = 1.904$, corresponding $p_{wald} = 0.832$, fail to reject the null hypothesis.
+
+Score : $TS_s = \frac{n(\bar y-\pi_0)^2}{\pi_0(1-\pi_0)} = 4.44$, corresponding $p_{score} = 0.965$, fail to reject the null hypothesis.
+
+LR : $TS_{LR} = 2n[\bar y\log(\frac{\bar y(1-\pi_0)}{(1-\bar y)\pi_0}) + log(\frac{1-\bar y}{1-\pi_0})] = 3.073$, corresponding $p_{lr} = 0.920$, fail to reject the null hypothesis.
+
+When $\pi_0 = 0.3$, 
+
+Wald : $TS_W = (\bar y-\pi_0)^2\frac{n}{y_0(1-y_0)} = 0$, corresponding $p_{wald} = 0$, reject the null hypothesis.
+
+Score : $TS_s = \frac{n(\bar y-\pi_0)^2}{\pi_0(1-\pi_0)} = 0$, corresponding $p_{score} = 0$, reject the null hypothesis.
+
+LR : $TS_{LR} = 2n[\bar y\log(\frac{\bar y(1-\pi_0)}{(1-\bar y)\pi_0}) + log(\frac{1-\bar y}{1-\pi_0})] = 0$, corresponding $p_{lr} = 0$, reject the null hypothesis.
+
+When $\pi_0 = 0.5$, 
+
+Wald : $TS_W = (\bar y-\pi_0)^2\frac{n}{y_0(1-y_0)} = 1.904$, corresponding $p_{wald} = 0.832$, fail to reject the null hypothesis.
+
+Score : $TS_s = \frac{n(\bar y-\pi_0)^2}{\pi_0(1-\pi_0)} = 1.6$, corresponding $p_{score} = 0.794$, fail to reject the null hypothesis.
+
+LR : $TS_{LR} = 2n[\bar y\log(\frac{\bar y(1-\pi_0)}{(1-\bar y)\pi_0}) + log(\frac{1-\bar y}{1-\pi_0})] = 1.646$, corresponding $p_{lr} = 0.800$, fail to reject the null hypothesis.
+
+### Question 3
+
+In problem 3, the results of three statistic are equal when $\pi_0 = \bar y = 0.3$. When $\pi_0$ increases, the results of three statistic become closer. In all situations, three test statistics lead to same conclusions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
