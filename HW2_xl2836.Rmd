@@ -1,0 +1,200 @@
+---
+title: "Homework_2"
+author: "Xinyi Lin"
+date: "2/13/2019"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+## Problem 1
+
+```{r, include=FALSE}
+# data
+x = c(0,1,2,3,4)
+n_dying = c(2,8,15,23,27)
+n_total = 30
+resp = cbind(n_dying, n_total - n_dying)
+
+# fit model
+glm_logit=glm(resp~x, family=binomial(link='logit'))
+glm_probit=glm(resp~x, family=binomial(link='probit'))
+glm_clog=glm(resp~x, family=binomial(link='cloglog')) # asymmetric
+summary(glm_logit)
+summary(glm_probit)
+summary(glm_clog)
+glm_logit
+glm_probit
+glm_clog
+
+# CI for beta
+vcov(glm_logit) # covariance of beta MLE (fisher information inverse)
+beta=glm_logit$coefficients[2]
+se=sqrt(vcov(glm_logit)[2,2]) # (same as in summary(glm_logit))
+beta+c(qnorm(0.025),0,-qnorm(0.025))*se
+
+vcov(glm_probit) # covariance of beta MLE (fisher information inverse)
+beta=glm_probit$coefficients[2]
+se=sqrt(vcov(glm_probit)[2,2]) # (same as in summary(glm_logit))
+beta+c(qnorm(0.025),0,-qnorm(0.025))*se
+
+vcov(glm_clog) # covariance of beta MLE (fisher information inverse)
+beta=glm_clog$coefficients[2]
+se=sqrt(vcov(glm_clog)[2,2]) # (same as in summary(glm_logit))
+beta+c(qnorm(0.025),0,-qnorm(0.025))*se
+
+# calculate \hat p
+## method 1
+x = 0.01
+eta_logit = glm_logit$coefficients[[1]] + x*glm_logit$coefficients[[2]]
+eta_probit = glm_probit$coefficients[[1]] + x*glm_probit$coefficients[[2]]
+eta_clog = glm_clog$coefficients[[1]] + x*glm_clog$coefficients[[2]]
+
+mu_logit = exp(eta_logit)/(1+exp(eta_logit))
+mu_probit = dnorm(eta_probit)
+mu_clog = 1-exp(-exp(eta_clog))
+
+## method 2
+mu_logit = predict(glm_logit, data.frame(x=0.01), se.fit=TRUE,type='response')$fit[1]
+mu_probit = predict(glm_probit, data.frame(x=0.01), se.fit=TRUE,type='response')$fit[1]
+mu_clog = predict(glm_clog, data.frame(x=0.01), se.fit=TRUE,type='response')$fit[1]
+```
+
+### Question 1
+
+Model     |Estimate of $\beta$             |CI of $\beta$ |Deviance |$\hat p$(dying\|x=0.01)  
+----------|--------------------------------|--------------|---------|------------------------
+logit     |`r glm_logit$coefficients[[2]]` |(0.806, 1.518)|0.3787   |`r round(mu_logit, 4)`  
+probit    |`r glm_probit$coefficients[[2]]`|(0.497, 0.876)|0.3137   |`r round(mu_probit, 4)` 
+c-log-log |`r glm_clog$coefficients[[2]]`  |(0.532, 0.961)|2.23     |`r round(mu_clog, 4)`   
+
+Comments: According to results, we can find that estimated $\beta$ of three methods are different. The model given by probit method has smallest deviance, while the model given by complementary log-log method has biggest deviance. Besides, probability of dying when $x = 0.01$ given by logit and probit methods are similar while probability given by complementary log-log method is larger.
+
+### Question 2
+
+When using logit method or probit method, as $\pi = 0.5$, $g(0.5) = \log\frac{0.5}{1-0.5} = 0 = \beta_0 + \beta_1 x$, $g(0.5) = \phi(0.5) = 0 = \beta_0 + \beta_1 x$, $x = -\frac{\beta_0}{\beta_1}$
+
+$\frac{\partial x_0}{\partial \beta_0} = -\frac{1}{\beta_1}, \frac{\partial x_0}{\partial \beta_1} = -\frac{\beta_0}{\beta_1^2}$
+
+$Var(\hat x_0) = (\frac{\partial x_0}{\partial \beta_0})^2Var(\hat\beta_0) + (\frac{\partial x_0}{\partial \beta_1})^2Var(\hat \beta_1) + 2(\frac{\partial x_0}{\partial \beta_0})(\frac{\partial x_0}{\partial \beta_1})cov(\hat \beta_0, \hat \beta_1) = \frac{Var(\hat\beta_0)}{\beta_1^2} + \frac{\beta_0^2Var(\hat\beta_1)}{\beta_1^4} + \frac{2\beta_0cov(\hat\beta_0,\hat\beta_1)}{\beta_1^3}$
+
+When using complementary log-log method, $\pi = 0.4$, $g(0.5) = \log(-\log\frac{1}{2}) = \beta_0 + \beta_1 x$, $x = \frac{\log(-\log\frac{1}{2})-\beta_0}{\beta_1}$
+
+$\frac{\partial x_0}{\partial \beta_0} = -\frac{1}{\beta_1}, \frac{\partial x_0}{\partial \beta_1} = -\frac{\log(-\log\frac{1}{2})-\beta_0}{\beta_1^2}$
+
+$Var(\hat x_0) = (\frac{\partial x_0}{\partial \beta_0})^2Var(\hat\beta_0) + (\frac{\partial x_0}{\partial \beta_1})^2Var(\hat \beta_1) + 2(\frac{\partial x_0}{\partial \beta_0})(\frac{\partial x_0}{\partial \beta_1})cov(\hat \beta_0, \hat \beta_1) = \frac{Var(\hat\beta_0)}{\beta_1^2} + \frac{[\log(-\log\frac{1}{2})-\beta_0]^2Var(\hat\beta_1)}{\beta_1^4} + \frac{2[\log(-\log\frac{1}{2})-\beta_0]cov(\hat\beta_0,\hat\beta_1)}{\beta_1^3}$
+
+```{r, include=FALSE}
+#logit model
+beta0=glm_logit$coefficients[1]
+beta1=glm_logit$coefficients[2]
+betacov=vcov(glm_logit) # inverse fisher information
+x0fit=-beta0/beta1
+exp(x0fit) # point estimate of LD50
+varx0=betacov[1,1]/(beta1^2)+betacov[2,2]*(beta0^2)/(beta1^4)-2*betacov[1,2]*beta0/(beta1^3)
+c(x0fit,sqrt(varx0)) # point est and se
+exp(x0fit+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0)) # 90% CI for LD50
+
+#probit model
+beta0=glm_probit$coefficients[1]
+beta1=glm_probit$coefficients[2]
+betacov=vcov(glm_probit) # inverse fisher information
+x0fit=-beta0/beta1
+exp(x0fit) # point estimate of LD50
+varx0=betacov[1,1]/(beta1^2)+betacov[2,2]*(beta0^2)/(beta1^4)-2*betacov[1,2]*beta0/(beta1^3)
+c(x0fit,sqrt(varx0)) # point est and se
+exp(x0fit+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0)) # 90% CI for LD50
+
+#clog model
+beta0=glm_clog$coefficients[1]
+beta1=glm_clog$coefficients[2]
+betacov=vcov(glm_clog) # inverse fisher information
+x0fit=(log(-log(1/2))-beta0)/beta1
+exp(x0fit) # point estimate of LD50
+varx0=betacov[1,1]/(beta1^2)+betacov[2,2]*((log(-log(1/2))-beta0)^2)/(beta1^4)+2*betacov[1,2]*(log(-log(1/2))-beta0)/(beta1^3)
+c(x0fit,sqrt(varx0)) # point est and se
+exp(x0fit+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0)) # 90% CI for LD50
+```
+
+By using R to calculate results, we get the point estimate of LD 50 is 7.389 and CI is (5.510, 9.909) based on logit method, the point estimate of LD 50 is 7.436 and CI is (5.582, 9.904) based on probit method and the point estimate of LD 50 is 8.841 and CI is (6.526, 11.977) based on complementary log-log method.
+
+## Problem 2
+
+For each offer $Y_i \sim Bin(1, \pi_i)$, so we use logit method to build the link function.
+
+```{r, include=FALSE}
+x = c(10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90)
+y_offers = c(4, 6, 10, 12, 39, 36, 22, 14, 10, 12, 8, 9, 3, 1, 5, 2, 1)
+y_enrolls = c(0, 2, 4, 2, 12, 14, 10, 7, 5, 5, 3, 5, 2, 0, 4, 2, 1)
+resp = cbind(y_enrolls, y_offers - y_enrolls)
+### fit logistic model
+glm_logit=glm(resp~x, family=binomial(link='logit'))
+glm_logit
+```
+
+### Question 1
+
+```{r, include=FALSE}
+# Goodness of fit/residuals (check ?residuals.glm to learn more about residuals)
+beta0=glm_logit$coefficients[1]
+beta1=glm_logit$coefficients[2]
+#beta0+x*beta1
+pihat=fitted(glm_logit) # \hat{pi}
+G.res=(y_enrolls*pihat)/sqrt(y_offers*pihat*(1-pihat))  # Pearson Chisq residual
+#residuals(glm_logit, type = "pearson")
+sum(residuals(glm_logit,type='pearson')^2) # pearson chisq 
+dev=sum(residuals(glm_logit,type='deviance')^2);dev # deviance (or obtain from summary(glm_logit))
+
+# compare with chisq(17-2)
+pval=1-pchisq(dev,15);pval # fit is ok, fails to reject
+```
+
+By using R to fit model, we get $\beta_0 = -1.648, \beta_1 = 0.031$. Then, we calculate deviance to test how does the model fit data. Deviance equals 10.613 which follows chi-square distribution with 15 degrees of freedom. The corresponding p-value is 0.780, so we fail to reject null hypothesis and the model fits data well.
+
+### Question 2
+
+```{r, include=FALSE}
+# beta_0
+vcov(glm_logit) # covariance of beta MLE (fisher information inverse)
+beta=glm_logit$coefficients[1]
+se=sqrt(vcov(glm_logit)[1,1]) # (same as in summary(glm_logit))
+beta+c(qnorm(0.025),0,-qnorm(0.025))*se
+# beta_1
+vcov(glm_logit) # covariance of beta MLE (fisher information inverse)
+beta=glm_logit$coefficients[2]
+se=sqrt(vcov(glm_logit)[2,2]) # (same as in summary(glm_logit))
+beta+c(qnorm(0.025),0,-qnorm(0.025))*se
+```
+
+$\beta_0$:By using R to fit model, we get $\beta_0 = -1.648$, which means the log odds of enrollment rate is -1.648 given scholarship amount is 0. The 95% CI of $\beta_0$ is (-2.474, -0.822).
+
+$\beta_1$:By using R to fit model, we get $\beta_1 = 0.031$, which means the log odds ration of enrollment rate is 0.031 when scholarship amount increases 1 thousand dollars. The 95% CI of $\beta_1$ is (0.012, 0.050).
+
+### Question 3
+
+As yield rate $= \pi = 0.4$, $g(0.4) = \log\frac{0.4}{1-0.4} = \log\frac{2}{3} = \beta_0 + \beta_1 x$, $x = \frac{\log\frac{2}{3}-\beta_0}{\beta_1}$
+
+$\frac{\partial x_0}{\partial \beta_0} = -\frac{1}{\beta_1}, \frac{\partial x_0}{\partial \beta_1} = -(\log\frac{2}{3}-\beta_0)\frac{1}{\beta_1^2}$
+
+$Var(\hat x_0) = (\frac{\partial x_0}{\partial \beta_0})^2Var(\hat\beta_0) + (\frac{\partial x_0}{\partial \beta_1})^2Var(\hat \beta_1) + 2(\frac{\partial x_0}{\partial \beta_0})(\frac{\partial x_0}{\partial \beta_1})cov(\hat \beta_0, \hat \beta_1) = \frac{Var(\hat\beta_0)}{\beta_1^2} + \frac{(\log\frac{2}{3}-\beta_0)^2Var(\hat\beta_1)}{\beta_1^4} + \frac{2(\log\frac{2}{3}-\beta_0)cov(\hat\beta_0,\hat\beta_1)}{\beta_1^3}$
+
+```{r, include=FALSE}
+beta0=glm_logit$coefficients[1]
+beta1=glm_logit$coefficients[2]
+betacov=vcov(glm_logit) # inverse fisher information
+#x0fit=-beta0/beta1
+x0fit=(log(2/3)-beta0)/beta1
+x0fit
+#exp(x0fit) # point estimate of LD50
+varx0=betacov[1,1]/(beta1^2)+betacov[2,2]*(log(2/3)-beta0)^2/(beta1^4)+2*betacov[1,2]*(log(2/3)-beta0)/(beta1^3)
+c(x0fit,sqrt(varx0)) # point est and se
+#exp(x0fit+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0)) # 90% CI for LD50
+x0fit+c(qnorm(0.025),-qnorm(0.025))*sqrt(varx0)
+```
+ 
+By using R to calculate, we can get estimated x(scholarship) is 40.134 thousand dollars and 95% CI is (30.583, 49.686) thousand dollars.
+
+
+
+

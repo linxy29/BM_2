@@ -1,0 +1,105 @@
+---
+title: "Homework 3"
+author: "Xinyi Lin"
+date: "2/20/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Problem 1
+
+### Question 1
+
+```{r, include=FALSE}
+expo_a = rep(0,6)
+expo_b = rep(1,6)
+prosp_data = data.frame(expo = c(expo_a, expo_b), age = c(25, 35, 45, 55, 65, 75, 25, 35, 45, 55, 65, 75), case = c(0, 5, 21, 34, 36, 8, 1, 4, 25, 42, 19, 5), control = c( 106, 164, 138, 139, 88, 31, 9, 26, 29, 27, 18, 0))
+```
+
+We assume $Y_1$ is the number of people get esophageal cancer given their daily alcohol consumption is equal to or larger than 80g, $Y_0$ is the number of people get esophageal cancer given their daily alcohol consumption is less than 80g. $$Y_0 \sim Bin(m_0, \pi_0)$$ $$Y_1 \sim Bin(m_1, \pi_1)$$
+
+Logistic model:$$logit(\pi_i) = log\frac{\pi_i}{1-\pi_i} = \beta_0 + \beta_1X_1 + \beta_2X_2$$ where $X_1$ represents daily alcohol consumption and $X_2$ represents age.
+
+By using R, we get following results 
+
+```{r, echo=FALSE}
+y = cbind(prosp_data$case, prosp_data$control)
+logit_prosp = glm(y ~ prosp_data$expo + prosp_data$age, family=binomial(link='logit'))
+summary(logit_prosp)$coefficients
+```
+
+So the fitted model: $$logit(\pi_i) = log\frac{\pi_i}{1-\pi_i} = -5.023 + 1.780X_1 + 0.062X_2$$
+
+$\beta_0$ cannot be interpreted, $\beta_1 = 1.780$ means the log odd ratio of esophageal cancer between people whoes daily alcohol consumption is equal to or lager than 80g and people whoes daily alcohol consumption is less than 80g given their ages are same is 1.780 and $\beta_2 = 0.062$ means the log odd ration of esophageal cancer is 0.062 when age increases 1 and daily alcohol consumption keeps constant.
+
+## Problem 2
+
+### Question 1
+
+```{r, include=FALSE}
+seed_a = rep("O75", 11)
+seed_b = rep("O73", 10)
+media_a = rep("bean", 5)
+media_b = rep("cucumber", 6)
+media_c = rep("bean", 5)
+media_d = rep("cucumber", 5)
+seed_data = data.frame(seed = c(seed_a, seed_b), media = c(media_a, media_b, media_c, media_d), y = c(10, 23, 23, 26, 17, 5, 53, 55, 32, 46, 10, 8, 10, 8, 23, 0, 3, 22, 15, 32, 3), m = c(39, 62, 81, 51, 39, 6, 74, 72, 51, 79, 13, 16, 30, 28, 45, 4, 12, 41, 30, 51, 7))
+```
+
+Logistic model:$$logit(\pi_i) = log\frac{\pi_i}{1-\pi_i} = \beta_0 + \beta_1X_1 + \beta_2X_2$$ where $X_1 = 0$ represents O.aegyptiaca 73, $X_1 = 1$ represents O.aegyptiaca 75 and $X_2 = 0$ represents bean media, $X_2 = 0$ represents cucumber media.
+
+By using R, we get following results:
+
+```{r, echo=FALSE}
+resp = cbind(seed_data$y, seed_data$m-seed_data$y)
+none.disp = glm(resp ~ seed_data$seed + seed_data$media, family=binomial(link='logit'))
+summary(none.disp)$coefficients
+```
+
+So the fitted model: $$logit(\pi_i) = log\frac{\pi_i}{1-\pi_i} = -0.7005 + 0.2705X_1 + 1.0647X_2$$
+
+$\beta_0 = -0.7005$ means the log odds of germination is 1.773 when seed is O.aegyptiaca 73 and media is bean, $\beta_1 = 0.2705$ means the log odd ratio of germination between seed O.aegyptiaca 73 and seed O.aegyptiaca 75 is -1.738 given medias are the same and $\beta_2 = 1.0647$ means the log odd ration of germination between bean media and cucumber media is 1.0647 given seeds are the same.
+
+### Question 2
+
+```{r, include=FALSE}
+# goodness of fit
+pval=1-pchisq(none.disp$deviance,21-3)
+pval # bad fit
+
+# calc dispersion param
+G.stat=sum(residuals(none.disp,type='pearson')^2) # pearson chisq 
+G.stat
+phi=G.stat/(21-3)
+phi
+tilde.phi=none.disp$deviance/none.disp$df.residual
+tilde.phi # similar to the one estimated from pearson chisq 
+```
+
+When we use deviance to test goodness of fit, we got $p-value = 0.00230277$ which is lower than 0.05 and shows the original model doesn't fit data well and is over dispersion. By calculating Pearson $\chi^2$, we get dispersion parameter $\phi = 2.128368$. Following is the half normal plot:
+
+```{r, echo=FALSE}
+# test over-dispersion (half normal plot)
+res=residuals(none.disp,type='pearson')
+plot(qnorm((21+1:21+0.5)/(2*21+1.125)),sort(abs(res)),xlab='Expected Half-Normal Order Stats',ylab='Ordered Abs Pearson Residuals')
+abline(a=0,b=1)
+abline(a=0,b=sqrt(phi),lty=2)
+```
+
+By updating the original with the dispersion parameter, we get following results:
+
+```{r, echo=FALSE}
+# fit model with constant over-dispersion
+summary(none.disp,dispersion=phi)$coefficients
+```
+
+So the fitted model: $$logit(\pi_i) = log\frac{\pi_i}{1-\pi_i} = -0.7005 + 0.2705X_1 + 1.0647X_2$$
+
+$\beta_0 = -0.7005$ means the log odds of germination is 1.773 when seed is O.aegyptiaca 73 and media is bean, $\beta_1 = 0.2705$ means the log odd ratio of germination between seed O.aegyptiaca 73 and seed O.aegyptiaca 75 is -1.738 given medias are the same and $\beta_2 = 1.0647$ means the log odd ration of germination between bean media and cucumber media is 1.0647 given seeds are the same.
+
+Results show that estimated values of parameters keep the same while variances change.
+
+### Question 3
+
+In this problem, over dispersion might causes by dependence among each seed or difference germination rate in each seed.
