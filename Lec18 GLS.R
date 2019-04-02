@@ -17,7 +17,8 @@ print(p)
 ###################################################
 # unstructured covariance
 unstruct <- gls(opp~time*ccog, opposites, correlation=corSymm(form = ~ 1 |id),  weights=varIdent(form = ~ 1| wave),method="REML")
-# check ?gls ?corClasses ?corSymm
+# times*ccog works as predictor, for weights, we can use time instead of wave
+# check ?gls ?corClasses ?corSymm(general correlation matrix, with no additional structure.)
 summary(unstruct) # focus on corr, var, (weight)
 unstruct$modelStruct$corStruct # corr
 unstruct$modelStruct$varStruct # variance:weight (variance ratios, with the first group being the reference; check ?varIdent)

@@ -1,0 +1,220 @@
+---
+title: "Homework 6"
+author: "Xinyi Lin"
+date: "3/28/2019"
+output: pdf_document
+---
+
+## Problem 1
+
+### Variance
+
+$$\begin{aligned}
+Var(Y_{ij}) &= Var(\mu + b_i + e_{ij}) \\
+&= Var(\mu) + Var(b_i) + Var(e_{ij}) \\
+&= \sigma_b^2 + \sigma_e^2
+\end{aligned}$$
+
+### Covariance
+$$\mu_{Y_{ij}} = \mu_{Y_{ik}} = E[\mu + b_i + e_{ij}] = \mu$$
+As $e_{ij}$ and $e_{ik}$ are independent, $E[e_{ij}e_{ik}] = E[e_{ij}]E[e_{ik}] = 0$.
+
+$$\begin{aligned}
+Cov(Y_{ij}, Y_{ik}) &= E[(Y_{ij}-\mu_{ij})(Y_{ik}-\mu_{ik})] \\
+&= E[(b_i + e_{ij})(b_i + e_{ik})] \\
+&= E[b_i^2 + b_i(e_{ij}+e_{ik}) + e_{ij}e_{ik}] \\
+&= E[b_i^2] + E[b_i(e_{ij}+e_{ik})] + E[e_{ij}e_{ik}] \\
+&= Var(b_i) + [E(b_i)]^2 + b_i\times0 + 0 \\
+&= \sigma_b^2
+\end{aligned}$$
+
+### Correlation
+
+$$cor(Y_{ij}, Y_{ik}) = Cov(Y_{ij}, Y_{ik})/\sqrt{var(Y_{ij}), var(Y_{ik})} = \frac{\sigma_b^2}{\sigma_b^2 + \sigma_e^2}$$
+
+According to the correlation result, we can know that correlation between any two $Y_{ij}$ are constant, so this correspond to compound symmetry covariance patterns.
+
+## Problem 2
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(patchwork)
+library(tidyverse)
+library(nlme)
+```
+
+### Question 1
+
+Import dental data.
+
+```{r}
+dental_data =
+  read.csv("./HW6-dental.txt", sep="") %>% 
+  janitor::clean_names() %>% 
+  mutate(gender = as.factor(gender))
+```
+
+Make the spaghetti plot.
+
+```{r}
+spag_p = ggplot(dental_data, aes(age, distance, group=child, color=gender)) + geom_line()
+spag_p
+```
+
+### Question 2
+
+$$\begin{aligned}
+var(Yij) &= var[\beta_0 + a_i + b_0*I(sex_i=0) + b_1*I(sex_i=1) + \beta_1*age_{ij} + e_{ij}] \\
+&= var(a_i) + var(b_k) + var(e_{ij}) \\
+&= \sigma_a^2 + \sigma_b^2 + \sigma_e^2
+\end{aligned}$$
+
+$$E(Y_{ij}) = \beta_0 + \beta_1 * age_{ij}$$
+For the same individual in different ages:
+
+$$\begin{aligned}
+cov(Y_{ij}, Y_{im}) &= E[(a_i + b_k + e_{ij})(a_i + b_k + e_{im})] \\
+&= E[a_i^2 + a_ib_k + a_ie_{im} + a_ib_k + b_k^2 + b_ke_{im} + a_ie_{ij} + b_ke_{ij} + e_{ij}e_{im}] \\
+&= E(a_i^2) + E(b_k^2) \\
+&= \sigma_a^2 + \sigma_b^2
+\end{aligned}$$
+
+For different individuals:
+
+1) same gender
+
+When measured in different ages,
+
+$$\begin{aligned}
+cov(Y_{hj}, Y_{im}) &= E[(a_h + b_k + e_{hj})(a_i + b_k + e_{im})] \\
+&= E[a_ia_h + a_hb_k + a_he_{im} + a_ib_k + b_k^2 + b_ke_{im} + a_ie_{hj} + b_ke_{hj} + e_{hj}e_{im}] \\
+&= E(b_k^2) \\
+&= \sigma_b^2
+\end{aligned}$$
+
+When measeured in the same age,
+
+$$\begin{aligned}
+cov(Y_{hj}, Y_{ij}) &= E[(a_h + b_k + e_{hj})(a_i + b_k + e_{ij})] \\
+&= E(b_k^2) \\
+&= \sigma_b^2
+\end{aligned}$$
+
+2) different genders
+
+$$\begin{aligned}
+cov(Y_{hj}, Y_{im}) &= E[(a_h + b_0 + e_{hj})(a_i + b_1 + e_{im})] \\
+&= 0
+\end{aligned}$$
+
+So for same individuals:
+
+$$ M_{s} = 
+\begin{bmatrix}
+\sigma_a^2 + \sigma_b^2 + \sigma_e^2 & \sigma_a^2 + \sigma_b^2 & \sigma_a^2 + \sigma_b^2 & \sigma_a^2 + \sigma_b^2 \\
+\sigma_a^2 + \sigma_b^2 & \sigma_a^2 + \sigma_b^2 + \sigma_e^2 & \sigma_a^2 + \sigma_b^2 & \sigma_a^2 + \sigma_b^2 \\
+\sigma_a^2 + \sigma_b^2 & \sigma_a^2 + \sigma_b^2 & \sigma_a^2 + \sigma_b^2 + \sigma_e^2 & \sigma_a^2 + \sigma_b^2 \\
+\sigma_a^2 + \sigma_b^2 & \sigma_a^2 + \sigma_b^2 & \sigma_a^2 + \sigma_b^2 & \sigma_a^2 + \sigma_b^2 + \sigma_e^2 \\
+\end{bmatrix}$$
+
+For different individuals:
+
+$$ M_{d} = 
+\begin{bmatrix}
+\sigma_b^2 & \sigma_b^2 & \sigma_b^2 & \sigma_b^2 \\
+\sigma_b^2 & \sigma_b^2 & \sigma_b^2 & \sigma_b^2 \\
+\sigma_b^2 & \sigma_b^2 & \sigma_b^2 & \sigma_b^2 \\
+\sigma_b^2 & \sigma_b^2 & \sigma_b^2 & \sigma_b^2 \\
+\end{bmatrix}$$
+
+For all grils:
+
+$$ N_{g} = 
+\begin{bmatrix}
+M_{s} & M_{d} & \ldots & M_{d} \\
+M_{d} & M_{s} & \ldots & M_{d} \\
+\vdots & \vdots & \ddots & \vdots \\
+M_{d} & M_{d} & \ldots & M_{s} \\
+\end{bmatrix}_{11\times11}$$
+
+For all boys:
+
+$$ N_{b} = 
+\begin{bmatrix}
+M_{s} & M_{d} & \ldots & M_{d} \\
+M_{d} & M_{s} & \ldots & M_{d} \\
+\vdots & \vdots & \ddots & \vdots \\
+M_{d} & M_{d} & \ldots & M_{s} \\
+\end{bmatrix}_{16\times16}$$
+
+So the model in marginal form is:
+
+$$E(Y_{ij}) = \beta_0 + a_i + b_0*I(sex_i=0) + b_1*I(sex_i=1) + \beta_1*age_{ij} + e_{ij}$$
+
+$$ var(Y_i) = 
+\begin{bmatrix}
+N_{g} & 0 \\
+0 & N_b \\
+\end{bmatrix}_{27\times27}$$
+
+### Question 3
+
+#### Compound symmetry covariance
+
+```{r}
+comsym <- gls(distance~gender+age,dental_data, 
+              correlation=corCompSymm(form = ~ 1|child), method="REML")
+summary(comsym)
+```
+
+According to the result given by R, the model with compound symmetry covariance is:
+
+$$E(y_{ij}) = 15.396 + 2.151*sex_i + 0.664 * age_{ij}$$
+
+$Var(Y_i) =$ is:
+
+```{r}
+corMatrix(comsym$modelStruct$corStruct)[[1]]*(comsym$sigma)^2
+```
+
+#### Exponential covariance
+
+```{r}
+expo <- gls(distance~gender+age ,dental_data, 
+            correlation=corExp(form = ~ 1 |child), method="REML")
+summary(expo)
+```
+
+According to the result given by R, the model with exponential covariance is:
+
+$$E(y_{ij}) = 15.460 + 2.419*sex_i + 0.653 * age_{ij}$$
+
+$Var(Y_i) =$ is:
+
+```{r}
+corMatrix(expo$modelStruct$corStruct)[[1]]*(expo$sigma)^2
+```
+
+#### Autoregressive covariance
+
+```{r}
+auto1 <- gls(distance~gender+age ,dental_data, 
+             correlation=corAR1(form = ~ 1 |child), method="REML")
+summary(auto1)
+```
+
+According to the result given by R, the model with autoregressive covariance is:
+
+$$E(y_{ij}) = 15.460 + 2.419*sex_i + 0.653 * age_{ij}$$
+
+$Var(Y_i) =$ is:
+
+```{r}
+corMatrix(auto1$modelStruct$corStruct)[[1]]*(auto1$sigma)^2
+```
+
+Conclusion:
+
+According to results given by R, models with exponential covariance and autoregressive covariance have same coefficient parameter estimates and covariance estimates as model with exponential covariance is a generalization of autoregressive pattern and in dental data, measurements made at equal intervals of time.
+
+The model with compound symmetry covariance have different coefficient parameter estimates and covariance estimates with other two models but the parameter estimates are closed. Since models with compound symmetry assume correlation between any two visits are constant while other two models do not have such assumption, their covariance estimates are different.
