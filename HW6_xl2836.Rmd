@@ -151,11 +151,11 @@ So the model in marginal form is:
 
 $$E(Y_{ij}) = \beta_0 + a_i + b_0*I(sex_i=0) + b_1*I(sex_i=1) + \beta_1*age_{ij} + e_{ij}$$
 
-$$ var(Y_i) = 
+$$ var(Y) = 
 \begin{bmatrix}
 N_{g} & 0 \\
 0 & N_b \\
-\end{bmatrix}_{27\times27}$$
+\end{bmatrix}$$
 
 ### Question 3
 

@@ -1,0 +1,202 @@
+---
+title: "Homework 7"
+author: "Xinyi Lin"
+date: "4/14/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(nlme)
+```
+
+Import data
+
+```{r}
+data = read.csv("./politeness_data.csv")
+```
+
+## Question 1
+
+```{r}
+par(mfrow=c(1,2))
+boxplot(data$frequency~data$gender, xlab = "gender", ylab = "frequency")
+boxplot(data$frequency~data$attitude, xlab = "attitude", ylab = "frequency")
+```
+
+According to boxplots, we can find that overall 1) pitches of women is significantly higher than pitches of men; 2) pitch of the inf level is slightly higher than the pol level.
+
+## Question 2
+
+Fit model 1.
+
+```{r}
+lmm1 <- lme(frequency ~ gender + attitude, random = ~1 | subject, 
+            data = data, method='REML') 
+summary (lmm1)
+```
+
+As $$Y_{ij} = \beta_0 + X_{ij}^T\beta + b_i + \epsilon_{ij}$$ where $b_i \sim N(0, \sigma_b^2)$ and $\epsilon_{ij} \sim N(0, \sigma^2)$.
+
+$$var(Y_i) = var[(\beta_1 + b_i) + X_{ij}^T\beta + b_i + \epsilon_{ij}] = \sigma_b^2 + \sigma^2$$
+
+$$cor(Y_{ij}, Y_{ik}) = \sigma_b^2$$
+
+```{r}
+#VarCorr(lmm1)
+sigma_b = as.numeric(VarCorr(lmm1)[1,2])^2
+sigma = as.numeric(VarCorr(lmm1)[2,2])^2
+sigma + sigma_b # variance of yij
+sigma_b # covariance
+```
+
+So the covariance matrix for a subject $Y_i$ is:
+
+$$\begin{bmatrix}
+1445.9 & 598.2 & \ldots & 598.2 \\
+598.2 & 1445.9 & \ldots & 598.2 \\
+\vdots & \vdots & \ddots & \vdots \\
+598.2 & 598.2 & \ldots & 1445.9 \\
+\end{bmatrix}_{14\times14}$$
+
+The covariance matrix for the REML estimates of fixed effects is:
+
+```{r}
+vcov(lmm1)
+```
+
+BLUPs for subject-specific intercepts:
+
+```{r}
+random.effects(lmm1) 
+```
+
+Residuals:
+
+```{r}
+data$frequency-fitted(lmm1)
+```
+
+## Question 3
+
+Fit model 2.
+
+```{r}
+lmm2 <- lme(frequency ~ gender + attitude + gender*attitude, random = ~1 | subject, 
+            data = data, method='REML') 
+summary(lmm2)
+```
+
+Likely ration test.
+
+$H_0:\beta_{gender*attitude}=0$, $H_1:\beta_{gender*attitude} \neq 0$
+
+```{r}
+lmm.1 = lme(frequency ~ gender + attitude ,
+              random = ~ 1|subject, data = data, method = "ML")
+lmm.2 = lme(frequency ~ gender + attitude + gender*attitude, random = ~1 | subject, 
+            data = data, method='ML') 
+anova(lmm.2, lmm.1)
+```
+
+As p-value equals to 0.2392 which is greater than 0.05, we fail to reject the null hypothesis and conclude that $\beta_{gender*attitude}=0$, thus smaller model is better.
+
+## Question 4
+
+Fit the model 3.
+
+```{r}
+lmm3 <- lme(frequency ~ gender + attitude, random = ~1 + attitude| subject, 
+            data = data, method='REML') 
+summary(lmm3)
+```
+
+As $$Y_{ij} = \beta_0 + X_{ij}^T\beta + b_{1i} + b_{2i}t_{ij} + \epsilon_{ij}$$ where $b_{1i} \sim N(0, g_{11})$, $b_{2i} \sim N(0, g_{22})$ are random intercept and random slope with $cov(b_{1i}, b_{2i}) = g_{12}$ and $\epsilon_{ij} \sim N(0, \sigma^2)$.
+
+So $$var(Y_i) = g_{11} + 2t_{ij} + t_{ij}^2g_{22} + \sigma^2$$
+when the attitude is  `inf`, $t_{ij}=0$, so $$var(Y_i) = g_{11} + \sigma^2$$
+when the attitude is  `pol`, $t_{ij}=1$, so $$var(Y_i) = g_{11} + 2g_{12} + g_{22} + \sigma^2$$
+And $$cov(Y_{ij}, Y_{ik}) = g_{11} + (t_{ij} + t_{ik})g_{12} + t_{ij}t_{ik}g_{22}$$
+when attitude of two observations are both `inf`, $t_{ij}=t_{ik}=0$, so $$cov(Y_{ij}, Y_{ik}) = g_{11}$$
+when attitude of two observations are both `pol`, $t_{ij}=t_{ik}=1$, so $$cov(Y_{ij}, Y_{ik}) = g_{11} + 2g_{12} + g_{22}$$
+when attitude of two observations are `pol` and `inf`, $t_{ij}=0, t_{ik}=1$, so $$cov(Y_{ij}, Y_{ik}) = g_{11} + g_{12}$$
+
+```{r}
+#VarCorr(lmm3)
+g11 = as.numeric(VarCorr(lmm3)[1,2])^2
+g22 = as.numeric(VarCorr(lmm3)[2,2])^2
+g12 = as.numeric(VarCorr(lmm3)[2,3])
+sigma = as.numeric(VarCorr(lmm3)[3,2])
+g11 + sigma^2
+g11 + 2*g12 + g22 + sigma^2
+g11
+g11 + 2*g12 + g22
+g11 + g12
+```
+
+For the same attitude and the attitude is `inf`:
+
+$$A = \begin{bmatrix}
+g_{11} + \sigma^2 & g_{11} & \ldots & g_{11} \\
+g_{11} & g_{11} + \sigma^2 & \ldots & g_{11} \\
+\vdots & \vdots & \ddots & \vdots \\
+g_{11} & g_{11} & \ldots & g_{11} + \sigma^2 \\
+\end{bmatrix}$$
+
+For the same attitude and the attitude is `pol`:
+
+$$B = \begin{bmatrix}
+g_{11} + 2g_{12} + g_{22} + \sigma^2 & g_{11} + 2g_{12} + g_{22} & \ldots & g_{11} + 2g_{12} + g_{22} \\
+g_{11} + 2g_{12} + g_{22} & g_{11} + 2g_{12} + g_{22} + \sigma^2 & \ldots & g_{11} + 2g_{12} + g_{22} \\
+\vdots & \vdots & \ddots & \vdots \\
+g_{11} + 2g_{12} + g_{22} & g_{11} + 2g_{12} + g_{22} & \ldots & g_{11} + 2g_{12} + g_{22} + \sigma^2 \\
+\end{bmatrix}$$
+
+For different attitudes:
+
+$$C = \begin{bmatrix}
+g_{11} + g_{12} & g_{11} + g_{12} & \ldots & g_{11} + g_{12} \\
+g_{11} + g_{12} & g_{11} + g_{12} & \ldots & g_{11} + g_{12} \\
+\vdots & \vdots & \ddots & \vdots \\
+g_{11} + g_{12} & g_{11} + g_{12} & \ldots & g_{11} + g_{12} \\
+\end{bmatrix}$$
+
+The covariance matrix for a subject $Y_i$ is:
+
+$$\begin{bmatrix}
+A & C \\
+C & B \\
+\end{bmatrix} \\$$
+$$= 
+\begin{bmatrix}
+g_{11} + \sigma^2 & g_{11} & \ldots & g_{11} & g_{11} + g_{12} & g_{11} + g_{12} & \ldots & g_{11} + g_{12} \\
+g_{11} & g_{11} + \sigma^2 & \ldots & g_{11} & g_{11} + g_{12} & g_{11} + g_{12} & \ldots & g_{11} + g_{12} \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+g_{11} & g_{11} & \ldots & g_{11} + \sigma^2 & g_{11} + g_{12} & g_{11} + g_{12} & \ldots & g_{11} + g_{12} \\
+g_{11} + g_{12} & g_{11} + g_{12} & \ldots & g_{11} + g_{12} & g_{11} + 2g_{12} + g_{22} + \sigma^2 & g_{11} + 2g_{12} + g_{22} & \ldots & g_{11} + 2g_{12} + g_{22} \\
+g_{11} + g_{12} & g_{11} + g_{12} & \ldots & g_{11} + g_{12} & g_{11} + 2g_{12} + g_{22} & g_{11} + 2g_{12} + g_{22} + \sigma^2 & \ldots & g_{11} + 2g_{12} + g_{22} \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+g_{11} + g_{12} & g_{11} + g_{12} & \ldots & g_{11} + g_{12} & g_{11} + 2g_{12} + g_{22} & g_{11} + 2g_{12} + g_{22} & \ldots & g_{11} + 2g_{12} + g_{22} + \sigma^2 \\
+\end{bmatrix} \\$$
+$$= \begin{bmatrix}
+1445.92 & 598.1953 & \ldots & 598.1953 & 598.1953 & 598.1953 & \ldots & 598.1953 \\
+598.1953 & 1445.92 & \ldots & 598.1953 & 598.1953 & 598.1953 & \ldots & 598.1953 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+598.1953 & 598.1953 & \ldots & 1445.92 & 598.1953 & 598.1953 & \ldots & 598.1953 \\
+598.1953 & 598.1953 & \ldots & 598.1953 & 1445.9 & 598.1954 & \ldots & 598.1954 \\
+598.1953 & 598.1953 & \ldots & 598.1953 & 598.1954 & 1445.9 & \ldots & 598.1954 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+598.1953 & 598.1953 & \ldots & 598.1953 & 598.1954 & 598.1954 & \ldots & 1445.9 \\
+\end{bmatrix}$$
+
+As 598.1953 and 598.1954 are very closed, so the covariance structure for subject $Y_i$ can be approximate to compound symmetry.
+
+The fix effect, random effect and BLUP:
+
+```{r}
+fixed.effects(lmm3)
+random.effects(lmm3)
+```
+
+So the fixed effect for the first female subject in scenario 1 with polite attitude is 256.987-20.002 = 236.985 and the random effect for the first female subject in scenario 1 with polite attitude is -13.575831-(8.408891e-07) = -13.576. And the BLUP for the intercept is -13.575831, the BLUP for the slop is 8.408891e-07. Corresponding $\hat Y_i$ equals to 236.985-13.576 = 223.409.
