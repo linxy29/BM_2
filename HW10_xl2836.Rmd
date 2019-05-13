@@ -1,0 +1,124 @@
+---
+title: "Homework 10"
+author: "Xinyi Lin"
+date: "5/5/2019"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r, message=FALSE, warning=FALSE}
+library(survival)
+library(MASS)
+library(survminer)
+library(KMsurv)
+library(tidyverse)
+```
+
+## Problem 1
+
+Input data
+
+```{r}
+time = c(4, 12, 15, 21, 23, 2, 6, 8, 10, 19)
+cens = c(1, 0, 1, 0, 1, 1, 0, 0, 1, 1)
+group = c(rep(1, 5), rep(2, 5))
+data1 = data.frame(time = time, cens = cens, group = group)
+data1
+```
+
+Using the log-rank test to test hypotheses.
+
+$H_0: h_1(t) = h_2(t)$ for all t; $H_1: h_1(t) \neq h_2(t)$ for some t.
+
+```{r}
+survdiff(Surv(time,cens)~group, data=data1) # log rank test
+ggsurvplot( survfit(Surv(time, cens) ~ group, data = data1), conf.int=TRUE)
+```
+
+Calculating by using R, we can get that $Z^2 = 1.1$ and corresponding $p-value = 0.3$. As p-value is larger than 0.05, we fail to reject the null hypothesis and conclude that $h_1(t) = h_2(t)$ for all t. The plot of survival probability of two groups are shown above.
+
+## Problem 2
+
+```{r}
+data("kidtran")
+head(kidtran)
+female_kid = kidtran %>% 
+  filter(gender == 2)
+male_kid = kidtran %>% 
+  filter(gender == 1)
+```
+
+For female:
+
+```{r}
+ggsurvplot( survfit(Surv(time, delta) ~ race, data = female_kid), conf.int=TRUE)
+```
+
+Using the log-rank test to test hypotheses.
+
+$H_0: h_1(t) = h_2(t)$ for all t; $H_1: h_1(t) \neq h_2(t)$ for some t.
+
+```{r}
+survdiff(Surv(time,delta) ~ race, data = female_kid)
+```
+
+Calculating by using R, we can get that $Z^2 = 4.8$ and corresponding $p-value = 0.03$. As p-value is smaller than 0.05, we reject the null hypothesis and conclude that $h_1(t) \neq h_2(t)$ for some t.
+
+For male:
+
+```{r}
+ggsurvplot( survfit(Surv(time, delta) ~ race, data = male_kid), conf.int=TRUE)
+```
+
+Using the log-rank test to test hypotheses.
+
+$H_0: h_1(t) = h_2(t)$ for all t; $H_1: h_1(t) \neq h_2(t)$ for some t.
+
+```{r}
+survdiff(Surv(time,delta) ~ race, data = male_kid)
+```
+
+Calculating by using R, we can get that $Z^2 = 0.1$ and corresponding $p-value = 0.8$. As p-value is larger than 0.05, we fail to reject the null hypothesis and conclude that $h_1(t) = h_2(t)$ for all t.
+
+## Problem 3
+
+Get data.
+
+```{r}
+data("larynx")
+larynx_data = larynx %>% 
+  mutate(z1 = ifelse(stage == 2, 1, 0),
+         z2 = ifelse(stage == 3, 1, 0), 
+         z3 = ifelse(stage == 4, 1, 0))
+head(larynx_data)
+```
+
+We fit following model(using Breslow method for tie handling):
+$$h(t) = h_0(t)exp(\beta_1Z_1 + \beta_2Z_2 + \beta_3Z_3 + \beta_4Z_4 + \beta_5Z_1\times Z_4)$$
+
+```{r}
+fit=coxph(Surv(time,delta)~z1+z2+z3+age+z1*age,data=larynx_data,ties='breslow')
+summary(fit)
+```
+
+Explain of results:
+
+$\beta_1+\beta_5$: the log hazard ratio for subjects in stage II versus stage I is (-7.382+0.112*a) given they have same age, where a is the age of subjects.
+
+$\beta_2$: the log hazard ratio for subjects in stage III versus stage I is 0.621 given they have same age.
+
+$\beta_3$: the log hazard ratio for subjects in stage IV versus stage I is 1.753 given they have same age.
+
+$\beta_4$: when patients are not in stage II，the log hazard ratio for subjects with one unit changes in age is 0.006 given they are in same stage.
+
+$\beta_4+\beta_5$: when patients are in stage II，the log hazard ratio for subjects with one unit changes in age is 0.118.
+
+Relative risk:
+
+For the hazard of dying for a stage II patient of age 50 is $$h_2(t) = h_0(t)exp(-7.382\times1 + 0.111\times1\times50)$$
+
+For the hazard of dying for a stage I patient of age 50 is $$h_1(t) = h_0(t)exp(0)$$
+
+So the hazard ratio is $$HR(t) = \frac{h_2(t)}{h_1(t)} = 0.16$$

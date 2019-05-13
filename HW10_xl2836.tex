@@ -1,0 +1,346 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Homework 10},
+            pdfauthor={Xinyi Lin},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Homework 10}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Xinyi Lin}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{5/5/2019}
+
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(survival)}
+\KeywordTok{library}\NormalTok{(MASS)}
+\KeywordTok{library}\NormalTok{(survminer)}
+\KeywordTok{library}\NormalTok{(KMsurv)}
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Problem 1}\label{problem-1}
+
+Input data
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{time =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{, }\DecValTok{12}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{21}\NormalTok{, }\DecValTok{23}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{10}\NormalTok{, }\DecValTok{19}\NormalTok{)}
+\NormalTok{cens =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{group =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{5}\NormalTok{), }\KeywordTok{rep}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{5}\NormalTok{))}
+\NormalTok{data1 =}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{time =}\NormalTok{ time, }\DataTypeTok{cens =}\NormalTok{ cens, }\DataTypeTok{group =}\NormalTok{ group)}
+\NormalTok{data1}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    time cens group
+## 1     4    1     1
+## 2    12    0     1
+## 3    15    1     1
+## 4    21    0     1
+## 5    23    1     1
+## 6     2    1     2
+## 7     6    0     2
+## 8     8    0     2
+## 9    10    1     2
+## 10   19    1     2
+\end{verbatim}
+
+Using the log-rank test to test hypotheses.
+
+\(H_0: h_1(t) = h_2(t)\) for all t; \(H_1: h_1(t) \neq h_2(t)\) for some
+t.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{survdiff}\NormalTok{(}\KeywordTok{Surv}\NormalTok{(time,cens)}\OperatorTok{~}\NormalTok{group, }\DataTypeTok{data=}\NormalTok{data1) }\CommentTok{# log rank test}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Call:
+## survdiff(formula = Surv(time, cens) ~ group, data = data1)
+## 
+##         N Observed Expected (O-E)^2/E (O-E)^2/V
+## group=1 5        3     4.14     0.313      1.15
+## group=2 5        3     1.86     0.697      1.15
+## 
+##  Chisq= 1.1  on 1 degrees of freedom, p= 0.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#plot(survfit(Surv(time,cens)~group, data = data)) }
+\KeywordTok{ggsurvplot}\NormalTok{( }\KeywordTok{survfit}\NormalTok{(}\KeywordTok{Surv}\NormalTok{(time, cens) }\OperatorTok{~}\StringTok{ }\NormalTok{group, }\DataTypeTok{data =}\NormalTok{ data1), }\DataTypeTok{conf.int=}\OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW10_xl2836_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+Calculating by using R, we can get that \(Z^2 = 1.1\) and corresponding
+\(p-value = 0.3\). As p-value is larger than 0.05, we fail to reject the
+null hypothesis and conclude that there \(h_1(t) = h_2(t)\) for all t.
+The plot of survival probability of two group are shown above.
+
+\subsection{Problem 2}\label{problem-2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{data}\NormalTok{(}\StringTok{"kidtran"}\NormalTok{)}
+\KeywordTok{head}\NormalTok{(kidtran)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   obs time delta gender race age
+## 1   1    1     0      1    1  46
+## 2   2    5     0      1    1  51
+## 3   3    7     1      1    1  55
+## 4   4    9     0      1    1  57
+## 5   5   13     0      1    1  45
+## 6   6   13     0      1    1  43
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{female_kid =}\StringTok{ }\NormalTok{kidtran }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(gender }\OperatorTok{==}\StringTok{ }\DecValTok{2}\NormalTok{)}
+\NormalTok{male_kid =}\StringTok{ }\NormalTok{kidtran }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(gender }\OperatorTok{==}\StringTok{ }\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+For female:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggsurvplot}\NormalTok{( }\KeywordTok{survfit}\NormalTok{(}\KeywordTok{Surv}\NormalTok{(time, delta) }\OperatorTok{~}\StringTok{ }\NormalTok{race, }\DataTypeTok{data =}\NormalTok{ female_kid), }\DataTypeTok{conf.int=}\OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW10_xl2836_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggsurvplot}\NormalTok{( }\KeywordTok{survfit}\NormalTok{(}\KeywordTok{Surv}\NormalTok{(time, delta) }\OperatorTok{~}\StringTok{ }\NormalTok{race, }\DataTypeTok{data =}\NormalTok{ male_kid), }\DataTypeTok{conf.int=}\OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW10_xl2836_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\subsection{Problem 3}\label{problem-3}
+
+Get data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{data}\NormalTok{(}\StringTok{"larynx"}\NormalTok{)}
+\NormalTok{larynx_data =}\StringTok{ }\NormalTok{larynx }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{z1 =} \KeywordTok{ifelse}\NormalTok{(stage }\OperatorTok{==}\StringTok{ }\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{),}
+         \DataTypeTok{z2 =} \KeywordTok{ifelse}\NormalTok{(stage }\OperatorTok{==}\StringTok{ }\DecValTok{3}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{), }
+         \DataTypeTok{z3 =} \KeywordTok{ifelse}\NormalTok{(stage }\OperatorTok{==}\StringTok{ }\DecValTok{4}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{))}
+\KeywordTok{head}\NormalTok{(larynx_data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   stage time age diagyr delta z1 z2 z3
+## 1     1  0.6  77     76     1  0  0  0
+## 2     1  1.3  53     71     1  0  0  0
+## 3     1  2.4  45     71     1  0  0  0
+## 4     1  2.5  57     78     0  0  0  0
+## 5     1  3.2  58     74     1  0  0  0
+## 6     1  3.2  51     77     0  0  0  0
+\end{verbatim}
+
+We fit following model(using Breslow method for tie handling):
+\[h(t) = h_0(t)exp(\beta_1Z_1 + \beta_2Z_2 + \beta_3Z_3 + \beta_4Z_4 + \beta_5Z_1\times Z_4)\]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fit=}\KeywordTok{coxph}\NormalTok{(}\KeywordTok{Surv}\NormalTok{(time,delta)}\OperatorTok{~}\NormalTok{z1}\OperatorTok{+}\NormalTok{z2}\OperatorTok{+}\NormalTok{z3}\OperatorTok{+}\NormalTok{age}\OperatorTok{+}\NormalTok{z1}\OperatorTok{*}\NormalTok{age,}\DataTypeTok{data=}\NormalTok{larynx_data,}\DataTypeTok{ties=}\StringTok{'breslow'}\NormalTok{)}
+\KeywordTok{summary}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Call:
+## coxph(formula = Surv(time, delta) ~ z1 + z2 + z3 + age + z1 * 
+##     age, data = larynx_data, ties = "breslow")
+## 
+##   n= 90, number of events= 50 
+## 
+##              coef  exp(coef)   se(coef)      z Pr(>|z|)    
+## z1     -7.3820143  0.0006223  3.4027542 -2.169   0.0301 *  
+## z2      0.6218044  1.8622853  0.3558078  1.748   0.0805 .  
+## z3      1.7534270  5.7743576  0.4239595  4.136 3.54e-05 ***
+## age     0.0059729  1.0059908  0.0148792  0.401   0.6881    
+## z1:age  0.1116674  1.1181409  0.0476728  2.342   0.0192 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+##        exp(coef) exp(-coef) lower .95 upper .95
+## z1     0.0006223  1606.8231 7.900e-07    0.4903
+## z2     1.8622853     0.5370 9.272e-01    3.7403
+## z3     5.7743576     0.1732 2.516e+00   13.2550
+## age    1.0059908     0.9940 9.771e-01    1.0358
+## z1:age 1.1181409     0.8943 1.018e+00    1.2277
+## 
+## Concordance= 0.682  (se = 0.045 )
+## Rsquare= 0.235   (max possible= 0.988 )
+## Likelihood ratio test= 24.11  on 5 df,   p=2e-04
+## Wald test            = 23.77  on 5 df,   p=2e-04
+## Score (logrank) test = 27.98  on 5 df,   p=4e-05
+\end{verbatim}
+
+\begin{description}
+\item[Explain of results:]
+the log hazard ratio for subjects in stage II versus stage I is
+(-7.382+0.112*a) given they have same age, where a is the age of
+subjects.
+
+the log hazard ratio for subjects in stage III versus stage I is 0.621
+given they have same age.
+
+the log hazard ratio for subjects in stage IV versus stage I is 1.753
+given they have same age.
+
+when patients are not in stage II，the log hazard ratio for subjects
+with one unit changes in age is 0.621 given they are in same stage.
+
+when patients are in stage II，the log hazard ratio for subjects with
+one unit changes in age is 0.118 given they are in same stage.
+\end{description}
+
+Relative risk:
+
+For the hazard of dying for a stage II patient of age 50 is
+\[h_2(t) = h_0(t)exp(-7.382\times1 + 0.111\times1\times50)\]
+
+For the hazard of dying for a stage I patient of age 50 is
+\[h_1(t) = h_0(t)exp(0)\]
+
+So the hazard ratio is \[HR(t) = \frac{h_2(t)}{h_1(t)} = 0.16\]
+
+
+\end{document}
