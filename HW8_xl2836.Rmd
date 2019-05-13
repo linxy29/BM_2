@@ -1,0 +1,114 @@
+---
+title: "Homework 8"
+author: "Xinyi Lin"
+date: "4/21/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(gee)
+library(lme4)
+```
+
+```{r}
+library(readxl)
+health <- read_excel("HEALTH.xlsx") %>% 
+  janitor::clean_names() %>% 
+  mutate(health = as.factor(health))
+```
+
+## Question 1
+
+Draw a plot about numbers of 'Good' health group and 'Poor' health group in control group and intervention group when the time equals to 1.
+
+```{r}
+health %>% 
+  filter(time == 1) %>% 
+  ggplot(aes(x=txt, fill=health)) +
+  geom_bar(position="dodge") + 
+  xlab("txt") + labs(fill="health")
+```
+
+According to the plot, ratios of people whose self-rating levels are good or poor separetly in control group are slightly different from those in intervention group.
+
+Fit a GLM model to find out whether group assignment is a significant variable when predicting self-rated level.
+
+```{r}
+health_random = health %>% 
+  filter(time == 1)
+glm1 = glm(health~txt, family = binomial, health_random)
+summary(glm1)
+```
+
+According to the model, we can find that `txt` variable is not significant so there is no significant relationship between randomized group assignment and participants health self-rating.
+
+## Question 2
+
+Fit the GEE model with unstructure correlation structure.
+
+```{r, message=FALSE, warning=FALSE}
+subset <- subset(health, time > 1)
+# make month 0 as another covariate: baseline
+base = subset(health, time == 1) %>% 
+  select(id, health)
+colnames(base) = c("id", "baseline")
+new_subset = merge(subset,base,by="id",all=F)
+new_subset$nhealth <- as.numeric(new_subset$health == "Good") # 1=Good, 0=Poor
+new_subset$time = plyr::mapvalues(new_subset$time, from = c(2,3,4), to = c(3,6,12))
+
+#head(new_subset)
+
+gee.fit = gee(nhealth~txt+time+agegroup+baseline, 
+                 data = new_subset, family = "binomial", 
+                 id = id ,corstr = "unstructured", 
+                 scale.fix = TRUE, scale.value = 1) 
+summary(gee.fit)
+```
+
+Interpretation: 
+
+Intercept: The log odd of self-rating of health status as good is 0.12 on average for sub-population in control, age 15-24 group at the time of randomization with Good baseline.
+
+$\beta_{txt}:$ The log odd ratio of self-rating of health status as good between intervention group vs control group is 2.10 on average for sub-population with same age group, baseline in same time.
+
+$\beta_{time}:$ The log odd ratio of self-rating of health status as good is 0.03 on average with one unit changes in time for sub-population with same age group, baseline and treatment group.
+
+$\beta_{age25-34}:$ The log odd ratio of self-rating of health status as good between 25-34 age group vs 15-24 age group is 1.35 on average for sub-population with same treatment group, baseline in same time.
+
+$\beta_{age35+}:$ The log odd ratio of self-rating of health status as good between 35+ age group vs 15-24 age group is 1.42 on average for sub-population with same treatment group, baseline in same time.
+
+$\beta_{base}:$ The log odd ratio of self-rating of health status as good between poor baseline group vs good baseline group is -1.81 on average for sub-population with same treatment group and age group in same time.
+
+## Question 3
+
+Fit GLMM model. The model is as following:
+
+$$logit(E(Y_{ij}|b_i)) = (b_i+\beta_1) + X_{ij}^T\beta$$
+
+```{r}
+glmm.fit <- glmer(nhealth ~ baseline + txt + time + agegroup + (1 | id), 
+                  family = 'binomial', data = new_subset)
+summary(glmm.fit)
+```
+
+Interpretation:
+
+$\beta_0:$ The log odd of self-rating of health status as good is 0.20 on average across all subjects with baseline equals to good, in control group and 15-24 age group at the time of randomization.
+
+$\beta_{base}:$ Cannot interpret.
+
+$\beta_{txt}:$ Cannot interpret.
+
+$\beta_{time}:$ The log odd ration of self-rating of health status as good is 0.04 with one unit changes in time for the same subject.
+
+$\beta_{age25-34}:$ Cannot interpret.
+
+$\beta_{age35+}:$ Cannot interpret.
+
+Difference:
+
+For the GEE model, it considers the situation of sub-population, so its interpretation is based on sub-population and all coefficients can be interpreted. However, for the GLMM mdoel, it considers specific individual and some of its coefficients.

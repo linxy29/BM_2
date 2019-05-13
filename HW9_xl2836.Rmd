@@ -1,0 +1,109 @@
+---
+title: "Homework 9"
+author: "Xinyi Lin"
+date: "4/25/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Problem 1
+
+As $$h(x) = \frac{2x}{1+x^2} = \frac{d[ln(1+x^2)]}{dx} = -\frac{d[-ln(1+x^2)]}{dx}$$ $$\log S(x) = -ln(1+x^2)$$ survival function is $$S(x) = e^{-ln(1+x^2)} = \frac{1}{1+x^2}$$
+$$F(x) = 1-S(x) = \frac{x^2}{1+x^2}$$
+so the density function is $$f(x) = \frac{dF(x)}{dx} = \frac{2x}{(1+x^2)^2}$$
+
+## Problem 2
+
+Let $\hat{F(t)}$ be the Fleming-Harrington estimator of $S(t)$. The Kaplan-Meier estimate, the Fleming-Harrington estimate of survival function and the Nelson-Aalen estimate of the cumulative hazard function are shown below.
+
+\begin{tabular}{cccccccc}
+\hline
+$t_i$ & $n_i$ & $d_i$ & $c_i$ & $\hat \lambda_i$ & $\hat{S_t}$ & $\tilde{H_t}$ & $\hat{F_t}$\\
+\hline
+1 & 10 & 1 & 0 & 1/10 & 0.90 & 0.10 & 0.90\\
+2 & 9 & 2 & 0 & 2/9 & 0.70 & 0.32 & 0.72\\
+4 & 7 & 0 & 1 & 0/7 & 0.70 & 0.32 & 0.72\\
+5 & 6 & 0 & 1 & 0/6 & 0.70 & 0.32 & 0.72\\
+6 & 5 & 1 & 0 & 1/5 & 0.56 & 0.52 & 0.59\\
+7 & 4 & 0 & 1 & 0/4 & 0.56 & 0.52 & 0.59\\
+8 & 3 & 0 & 1 & 0/3 & 0.56 & 0.52 & 0.59\\
+9 & 2 & 0 & 1 & 0/2 & 0.56 & 0.52 & 0.59\\
+10 & 1 & 0 & 1 & 0/1 & 0.56 & 0.52 & 0.59\\
+\hline
+\end{tabular}
+
+## Problem 3
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(survival)
+```
+
+```{r}
+library(KMsurv)
+data(tongue)
+#head(tongue)
+```
+
+### Aneuploid Tumor
+
+```{r}
+aneu_data = tongue %>% 
+  filter(type == 1)
+```
+
+The fitted model and K-M curve of aneuploid tumor are as following:
+
+```{r}
+KM1=survfit(Surv(time,delta)~1, data = aneu_data, conf.type='log')
+plot(KM1, mark.time = TRUE,xlab="Weeks", ylab="Survival Probability", 
+     main="K-M curve", cex.lab=1.5, cex.main=1.5)
+#plot(KM1)
+#plot(KM1,fun='cumhaz') # cumulative hazard fun
+```
+
+Its pointwise 95% confidence interval is:
+
+```{r}
+summary(KM1)[9:10]
+```
+
+There are 52 weeks ony year, so the estimated 1-year survival rate and 95% CI are as following:
+
+```{r}
+summary(KM1, times = 52)
+```
+
+So the estimated survival rate is 0.654 and 95% CI is (0.537, 0.797).
+
+### Diploid Tumor
+
+```{r}
+dipl_data = tongue %>% 
+  filter(type == 2)
+```
+
+The fitted model and K-M curve of aneuploid tumor are as following:
+
+```{r}
+KM2=survfit(Surv(time,delta)~1, data = dipl_data, conf.type='log')
+plot(KM2, mark.time = TRUE,xlab="Weeks", ylab="Survival Probability", 
+     main="K-M curve", cex.lab=1.5, cex.main=1.5)
+#plot(KM2)
+#plot(KM2,fun='cumhaz') # cumulative hazard fun
+```
+
+Its pointwise 95% confidence interval is:
+
+```{r}
+summary(KM2)[9:10]
+```
+
+There are 52 weeks ony year, so the estimated 1-year survival rate and 95% CI are as following:
+
+```{r}
+summary(KM2, times = 52)
+```
+
+So the estimated survival rate is 0.486 and 95% CI is (0.33, 0.716).
