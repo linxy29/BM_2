@@ -30,6 +30,7 @@ cov2cor(unstruct$varBeta) # fisher information -> correlation (distinguish from 
 comsym <- gls(opp~time,opposites, correlation=corCompSymm(form = ~ 1|id),   weights=varIdent(form = ~ 1| wave), method="REML")
 summary(comsym)
 corMatrix(comsym$modelStruct$corStruct)[[1]]
+comsym$sigma
 
 
 
